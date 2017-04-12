@@ -9,10 +9,10 @@ from scipy import stats
 
 class Pic_analyz:
     def __init__(self):
-        image1_name = "nya.png"
-        image2_name = "diablo.png"
-        image1_gray_name = "nya_gray.png"
-        image2_gray_name = "diablo_gray.png"
+        image1_name = "tst.png"
+        image2_name = "spring.png"
+        image1_gray_name = "tst_gray.png"
+        image2_gray_name = "spring_gray.png"
 
         self.pic1 = mpimg.imread(image1_name)
         self.pic2 = mpimg.imread(image2_name)
@@ -56,6 +56,14 @@ class Pic_analyz:
         self.show_grayscale_gray(gs)
         self.show_grayscale(gs)
 
+    def normaltest(self, hists):
+        i = 1
+        print("Normal Test:")
+        for hist in hists:
+            probab = stats.mstats.normaltest(hist[0])
+            print("     Image", i, " probability = ", probab[1])
+            i += 1
+
     def show_hist_characteristics(self, hists):
         hist_corrcoef = np.corrcoef(hists[0][0], hists[1][0])
         print('hist_corrcoef = ', hist_corrcoef[0][1])
@@ -64,11 +72,15 @@ class Pic_analyz:
         for hist in hists:
             print("Hist", i, ":")
 
-            mean = np.mean(hist[0])
+            mean = 0
+            #  print(hist)
+            print(len(self.pics[0].ravel()))
+            for j in range(0, 255):
+                mean += hist[0][j] * 3 / len(self.pics[i - 1].ravel()) * hist[1][j]
             print('     mean = ', mean)
 
-            cov = np.cov(hist[0])
-            print('     cov = ', cov)
+            std = np.std(hist[0])
+            print('     standard deviation = ', std)
 
             mode = stats.mode(hist[0])
             print('     mode = ', mode)
@@ -91,6 +103,11 @@ class Pic_analyz:
         return hists
 
     def print_layer_corrcoef(self):
+        image_corr = np.corrcoef(self.pic1.ravel(), self.pic2.ravel())
+        print("mean1 = ", np.mean(self.pic1.ravel()))
+        print("mean2 = ", np.mean(self.pic2.ravel()))
+
+        print("Image corrcoef = ", image_corr[0][1])
         i = 1
         for picture in [self.pic1, self.pic2]:
             r = list()
@@ -115,8 +132,9 @@ class Pic_analyz:
 
         self.show_images(gs)
         hists = self.show_hists(gs)
+        self.normaltest(hists)
         self.show_hist_characteristics(hists)
-        #  self.print_layer_corrcoef()
+        self.print_layer_corrcoef()
 
         plt.show()
 
